@@ -32,8 +32,8 @@ Post.post(
     const [post] = await database
       .insert(postTable)
       .values({
-        userId: session.userId,
         ...input,
+        userId: session.userId,
         countDownDate:
           input.isCountDown && input.countDownDate
             ? new Date(input.countDownDate)
@@ -45,7 +45,7 @@ Post.post(
   }
 );
 
-Post.get("/group", async (c) => {
+Post.get("/", async (c) => {
   const session = c.get("session");
   const posts = await database
     .select()
@@ -53,7 +53,7 @@ Post.get("/group", async (c) => {
     .where(eq(postTable.userId, session.userId))
     .orderBy(desc(postTable.createdAt));
 
-  return c.json(posts);
+  return c.json({ posts });
 });
 
 export default Post;

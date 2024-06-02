@@ -9,10 +9,15 @@ import {
 import { userTable } from "../auth/schema";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+import { relations } from "drizzle-orm";
+import { groupTable } from "../groups/schema";
 
 export const postTable = pgTable("post", {
   id: serial("id").primaryKey(),
   userId: integer("user_id")
+    .notNull()
+    .references(() => userTable.id),
+  groupId: integer("group_id")
     .notNull()
     .references(() => userTable.id),
   qoute: text("title").notNull(),
@@ -30,6 +35,17 @@ export const postTable = pgTable("post", {
     .notNull(),
 });
 
+export const postRelations = relations(postTable, ({ one }) => ({
+  group: one(groupTable, {
+    fields: [postTable.groupId],
+    references: [groupTable.id],
+  }),
+  user: one(userTable, {
+    fields: [postTable.userId],
+    references: [userTable.id],
+  })
+}));
+
 export const PostType = createInsertSchema(postTable);
 
 export const insertPostSchema = createInsertSchema(postTable, {
@@ -39,4 +55,6 @@ export const insertPostSchema = createInsertSchema(postTable, {
   content: true,
   isCountDown: true,
   countDownDate: true,
+}).extend({
+  groupId: z.number(),
 });

@@ -5,9 +5,11 @@
     "target": "ESNext",
     "module": "ESNext",
     "moduleDetection": "force",
-    "jsx": "react-jsx",
     "allowJs": true,
 
+    // Hono-React
+    "jsx": "react-jsx",
+    "jsxImportSource": "hono/jsx",
     // Bundler mode
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,

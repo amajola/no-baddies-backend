@@ -39,7 +39,11 @@ Auth.post(
       });
     const session = await createSession(user);
     if (session) {
-      c.res.headers.append("Set-Cookie", session.cookie);
+      if (session) {
+        const [_, cookieValue] = session?.cookie.split('=');
+        c.res.headers.append("Set-Cookie", session.cookie);
+        c.res.headers.append("Authorization", cookieValue.split(';')[0]);
+      }
     }
 
     return c.json(user);
@@ -72,7 +76,9 @@ Auth.post(
 
     const session = await createSession(user);
     if (session) {
+      const [_, cookieValue] = session?.cookie.split('=');
       c.res.headers.append("Set-Cookie", session.cookie);
+      c.res.headers.append("Authorization", cookieValue.split(';')[0]);
     }
 
     return c.json({ email: user.email, id: user.id, name: user.name });

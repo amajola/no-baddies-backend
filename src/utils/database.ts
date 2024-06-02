@@ -10,6 +10,8 @@ import {
 import { Client } from "pg";
 import { DrizzlePostgreSQLAdapter } from "@lucia-auth/adapter-drizzle";
 import { Lucia } from "lucia";
+import { groupTable } from "../routes/groups/schema";
+import { postTable } from "../routes/posts/schema";
 
 const client = new Client({
   host: ENV.DB_HOST,
@@ -22,7 +24,7 @@ const client = new Client({
 await client.connect();
 
 export const database = drizzle(client, {
-  schema: { sessionTable, userTable },
+  schema: { sessionTable, userTable, groupTable, postTable },
 });
 
 export const AuthAdapter = new DrizzlePostgreSQLAdapter(

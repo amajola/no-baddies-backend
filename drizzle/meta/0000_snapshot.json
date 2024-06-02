@@ -1,5 +1,5 @@
 {
-  "id": "7d0e62fe-6c30-4679-8d66-557d59d25deb",
+  "id": "c435606b-0ee7-4ac6-a15c-10083825297f",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "6",
   "dialect": "postgresql",
@@ -116,6 +116,70 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
+    "public.users_to_groups": {
+      "name": "users_to_groups",
+      "schema": "",
+      "columns": {
+        "user_id": {
+          "name": "user_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "group_id": {
+          "name": "group_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "role": {
+          "name": "role",
+          "type": "role",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "users_to_groups_user_id_user_id_fk": {
+          "name": "users_to_groups_user_id_user_id_fk",
+          "tableFrom": "users_to_groups",
+          "tableTo": "user",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "users_to_groups_group_id_groups_id_fk": {
+          "name": "users_to_groups_group_id_groups_id_fk",
+          "tableFrom": "users_to_groups",
+          "tableTo": "groups",
+          "columnsFrom": [
+            "group_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "users_to_groups_user_id_group_id_pk": {
+          "name": "users_to_groups_user_id_group_id_pk",
+          "columns": [
+            "user_id",
+            "group_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {}
+    },
     "public.post": {
       "name": "post",
       "schema": "",
@@ -128,6 +192,12 @@
         },
         "user_id": {
           "name": "user_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "group_id": {
+          "name": "group_id",
           "type": "integer",
           "primaryKey": false,
           "notNull": true
@@ -178,13 +248,35 @@
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
+        },
+        "post_group_id_user_id_fk": {
+          "name": "post_group_id_user_id_fk",
+          "tableFrom": "post",
+          "tableTo": "user",
+          "columnsFrom": [
+            "group_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     }
   },
-  "enums": {},
+  "enums": {
+    "public.role": {
+      "name": "role",
+      "schema": "public",
+      "values": [
+        "admin",
+        "member"
+      ]
+    }
+  },
   "schemas": {},
   "_meta": {
     "columns": {},

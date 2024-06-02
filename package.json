@@ -1,9 +1,13 @@
 {
   "scripts": {
-    "dev": "bun run --hot src/index.ts",
+    "dev": "bun run --hot src/index.tsx",
     "generate": "drizzle-kit generate",
-    "migrate": "drizzle-kit migrate"
+    "migrate": "drizzle-kit migrate",
+    "test": "bun test",
+    "coverage": "bun test --coverage",
+    "vite-dev": "vite"
   },
+  "type": "module",
   "dependencies": {
     "@hono/zod-validator": "^0.2.2",
     "@lucia-auth/adapter-drizzle": "^1.0.7",
@@ -21,6 +25,7 @@
     "@faker-js/faker": "^8.4.1",
     "@types/bun": "latest",
     "@types/pg": "^8.11.6",
+    "autoprefixer": "^10.4.19",
     "drizzle-kit": "^0.21.4"
   }
 }

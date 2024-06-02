@@ -2,7 +2,7 @@ import { relations } from "drizzle-orm";
 import { integer, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
-import { group } from "../groups/schema";
+import { groupTable } from "../groups/schema";
 import { postTable } from "../posts/schema";
 
 export const userTable = pgTable("user", {
@@ -25,7 +25,7 @@ export const sessionTable = pgTable("session", {
 });
 
 export const userRelations = relations(userTable, ({ many }) => ({
-  group: many(group),
+  group: many(groupTable),
   posts: many(postTable),
 }));
 
