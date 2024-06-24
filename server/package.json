@@ -1,4 +1,5 @@
 {
+  "name": "server",
   "scripts": {
     "dev": "bun run --hot src/index.tsx",
     "generate": "drizzle-kit generate",
