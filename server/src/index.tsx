@@ -1,8 +1,8 @@
 import { Hono } from "hono";
 import Auth from "./routes/auth";
 import Post from "./routes/posts";
-import type { SessionType } from "./routes/auth/schema";
-import type z from "zod";
+import { SessionType } from "./routes/auth/schema";
+import z from "zod";
 import Group from "./routes/groups";
 import Top from "./client";
 
