@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
 import "./App.css";
-import { Component } from "./components/component";
+import Home from "./screens/Home";
+
 
 function App() {
-  return <Component />;
+  return <Home />;
 }
 
 export default App;

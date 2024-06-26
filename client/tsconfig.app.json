@@ -16,9 +16,10 @@
     "moduleDetection": "force",
     "noEmit": true,
     "jsx": "react-jsx",
-
+    "rootDir": "../",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "server": ["../server/src"]
     },
     /* Linting */
     "strict": true,
@@ -26,5 +27,5 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src"]
+  "include": ["src", "../server/src"]
 }

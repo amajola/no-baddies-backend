@@ -22,54 +22,52 @@ export const authProtected = createMiddleware(async (c, next) => {
   await next();
 });
 
-const Group = new Hono<{ Variables: Variables }>();
+const Group = new Hono<{ Variables: Variables }>()
+  .use(authProtected)
+  .post(
+    "/create",
+    zValidator("json", GroupInsertType, (result, c) => {
+      if (!result.success) {
+        return c.text("Invalid!", 400);
+      }
+    }),
+    async (c) => {
+      const { name } = c.req.valid("json");
+      const session = c.get("session");
+      const [group] = await database
+        .insert(groupTable)
+        .values({ name })
+        .returning();
 
-Group.use(authProtected);
-Group.post(
-  "/create",
-  zValidator("json", GroupInsertType, (result, c) => {
-    if (!result.success) {
-      return c.text("Invalid!", 400);
+      const [userToGroup] = await database
+        .insert(usersToGroups)
+        .values({ groupId: group.id, userId: session.userId, role: "admin" })
+        .returning();
+
+      return c.json(group);
     }
-  }),
-  async (c) => {
-    const { name } = c.req.valid("json");
-    const session = c.get("session");
-    const [group] = await database
-      .insert(groupTable)
-      .values({ name })
-      .returning();
+  )
+  .post(
+    "/add-member",
+    zValidator("json", GroupInsertMemberType, (result, c) => {
+      if (!result.success) {
+        return c.text("Invalid!", 400);
+      }
+    }),
+    async (c) => {
+      const { id, user } = c.req.valid("json");
+      const group = await database.query.groupTable.findFirst({
+        where: eq(groupTable.id, id),
+      });
 
-    const [userToGroup] = await database
-      .insert(usersToGroups)
-      .values({ groupId: group.id, userId: session.userId, role: "admin" })
-      .returning();
+      if (!group) throw new Error("Group not found");
+      await database
+        .insert(usersToGroups)
+        .values({ groupId: group.id, userId: user.userId, role: user.role })
+        .returning();
 
-    return c.json(group);
-  }
-);
-
-Group.post(
-  "/add-member",
-  zValidator("json", GroupInsertMemberType, (result, c) => {
-    if (!result.success) {
-      return c.text("Invalid!", 400);
+      return c.json({ message: "ok" });
     }
-  }),
-  async (c) => {
-    const { id, user } = c.req.valid("json");
-    const group = await database.query.groupTable.findFirst({
-      where: eq(groupTable.id, id),
-    });
-
-    if (!group) throw new Error("Group not found");
-    await database
-      .insert(usersToGroups)
-      .values({ groupId: group.id, userId: user.userId, role: user.role })
-      .returning();
-
-    return c.json({ message: "ok" });
-  }
-);
+  );
 
 export default Group;

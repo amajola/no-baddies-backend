@@ -1,13 +1,13 @@
 {
   "name": "no-baddies-mono",
   "version": "1.0.0",
-    "workspaces": [
+  "workspaces": [
     "./server",
     "./client"
   ],
   "scripts": {
-  "dev:client": "cd client && bun run dev",
-  "dev:server": "cd server && bun run dev"
+    "dev:client": "cd client && bun run dev",
+    "dev:server": "cd server && bun run dev"
   },
   "license": "MIT"
 }
