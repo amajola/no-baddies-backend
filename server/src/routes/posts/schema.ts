@@ -9,11 +9,9 @@ import {
 import { userTable } from "../auth/schema";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
-import { relations } from "drizzle-orm";
-import { groupTable } from "../groups/schema";
 
 export const postTable = pgTable("post", {
-  id: serial("id").primaryKey(),
+  id: serial("id").primaryKey().notNull(),
   userId: integer("user_id")
     .notNull()
     .references(() => userTable.id),
@@ -35,26 +33,24 @@ export const postTable = pgTable("post", {
     .notNull(),
 });
 
-export const postRelations = relations(postTable, ({ one }) => ({
-  group: one(groupTable, {
-    fields: [postTable.groupId],
-    references: [groupTable.id],
-  }),
-  user: one(userTable, {
-    fields: [postTable.userId],
-    references: [userTable.id],
-  })
-}));
+export const PostType = createInsertSchema(postTable)
+  .required()
+  .extend({
+    createdAt: z.string(),
+    countDownDate: z.string().or(z.null()),
+  });
 
-export const PostType = createInsertSchema(postTable);
+export type PostTypeInfer = z.infer<typeof PostType>;
 
 export const insertPostSchema = createInsertSchema(postTable, {
   countDownDate: z.string(),
-}).pick({
-  qoute: true,
-  content: true,
-  isCountDown: true,
-  countDownDate: true,
-}).extend({
-  groupId: z.number(),
-});
+})
+  .pick({
+    qoute: true,
+    content: true,
+    isCountDown: true,
+    countDownDate: true,
+  })
+  .extend({
+    groupId: z.number(),
+  });

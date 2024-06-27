@@ -5,7 +5,6 @@ import {
   sessionTable,
   userTable,
   type User,
-  type UserType,
 } from "../routes/auth/schema";
 import { Client } from "pg";
 import { DrizzlePostgreSQLAdapter } from "@lucia-auth/adapter-drizzle";
@@ -19,9 +18,11 @@ const client = new Client({
   user: ENV.DB_USER,
   password: ENV.DB_PASSWORD,
   database: ENV.DB_NAME,
+  ssl: false,
 });
 
-await client.connect();
+const c = await client.connect(); 
+console.log(c);
 
 export const database = drizzle(client, {
   schema: { sessionTable, userTable, groupTable, postTable },
@@ -37,6 +38,7 @@ export const lucia = new Lucia(AuthAdapter, {
   sessionCookie: {
     attributes: {
       secure: ENV.NODE_ENV === "production", // set `Secure` flag in HTTPS
+
     },
   },
   getUserAttributes: (attributes) => {

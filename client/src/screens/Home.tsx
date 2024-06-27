@@ -31,22 +31,54 @@ import {
   SettingsIcon,
   UploadIcon,
 } from "@/assets/Icons";
-
 import { hc } from "hono/client";
 import { useAtom } from "jotai";
-import { AuthorizationAtom } from "@/state";
+import { AuthorizationAtom, UserAtom } from "@/state";
 import { useEffect, useState } from "react";
 import { AppType } from "server";
-import { PostType } from "../../../server/src/routes/posts/schema";
+import { PostTypeInfer } from "../../../server/src/routes/posts/schema";
+import { useForm } from "@tanstack/react-form";
+import { GroupType } from "../../../server/src/routes/groups/schema";
+import { User } from "../../../server/src/routes/auth/schema";
+
+interface PostType {
+  user: User | null;
+  post: PostTypeInfer | null;
+  group: GroupType | null;
+}
 
 const Home = () => {
-  const [auth, _] = useAtom(AuthorizationAtom);
-  const [posts, setPosts] = useState<(typeof PostType._type)[]>([]);
+  const [auth] = useAtom(AuthorizationAtom);
+  const [user] = useAtom(UserAtom);
+  const [refresh, setRefresh] = useState(false);
   const client = hc<AppType>("http://localhost:3000/", {
     headers: {
-      Authorization: `Bearer w5shpzzemkllcqzuca7lm55sdenp3hfpupzvvgkn`,
+      Authorization: `Bearer ${auth}`,
     },
   });
+
+  const form = useForm({
+    defaultValues: {
+      content: "",
+    },
+    onSubmit: async ({ value, formApi }) => {
+      if (user?.groups[0].groupId) {
+        const response = await client.posts.create.$post({
+          json: {
+            qoute: "Please delete this felid",
+            isCountDown: true,
+            countDownDate: new Date().toISOString(),
+            content: value.content,
+            groupId: user?.groups[0].groupId,
+          },
+        });
+        console.log(response);
+        setRefresh(!refresh);
+        formApi.reset();
+      }
+    },
+  });
+  const [posts, setPosts] = useState<PostType[]>([]);
 
   console.log(auth);
   useEffect(() => {
@@ -57,7 +89,8 @@ const Home = () => {
       });
     };
     handleRequest();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [auth, refresh]);
 
   return (
     <div className="flex flex-col h-[100dvh] w-[100dvw]">
@@ -94,9 +127,11 @@ const Home = () => {
                               <AvatarFallback>AC</AvatarFallback>
                             </Avatar>
                             <div className="flex items-center gap-2">
-                              <div className="font-medium">Acme Inc</div>
+                              <div className="font-medium">
+                                {post?.group?.name}
+                              </div>
                               <div className="text-muted-foreground text-sm">
-                                @acme
+                                {post?.user?.name}
                               </div>
                             </div>
                           </div>
@@ -105,7 +140,7 @@ const Home = () => {
                             <MoveHorizontalIcon className="w-5 h-5" />
                           </Button>
                         </div>
-                        <p>{post.qoute}</p>
+                        <p>{post?.post?.content}</p>
                         <div className="flex items-center gap-4">
                           <Button variant="ghost" size="sm">
                             <MessageCircleIcon className="w-5 h-5" />
@@ -128,14 +163,41 @@ const Home = () => {
             : null}
         </div>
       </div>
-      <div className="bg-primary text-primary-foreground p-4 flex gap-4">
-        <Avatar className="h-10 w-10">
-          <AvatarImage src="/placeholder-user.jpg" />
-          <AvatarFallback>AC</AvatarFallback>
-        </Avatar>
-        <Input placeholder="What's happening?" className="flex-1" />
-        <Button>Tweet</Button>
-      </div>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          form.handleSubmit();
+        }}
+      >
+        <div className="bg-primary p-4 flex gap-4">
+          <Avatar className="h-10 w-10">
+            <AvatarImage src="/placeholder-user.jpg" />
+            <AvatarFallback>AC</AvatarFallback>
+          </Avatar>
+          <form.Field
+            name="content"
+            children={(field) => (
+              <>
+                <Input
+                  type="string"
+                  name={field.name}
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  placeholder="What's happening?"
+                  required
+                />
+                {field.state.meta.errors ? (
+                  <em role="alert" className="text-xs text-right text-red-600">
+                    {field.state.meta.errors.join(", ")}
+                  </em>
+                ) : null}
+              </>
+            )}
+          />
+          <Button type="submit">Tweet</Button>
+        </div>
+      </form>
     </div>
   );
 };

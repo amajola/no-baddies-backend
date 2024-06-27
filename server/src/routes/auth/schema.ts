@@ -37,6 +37,9 @@ export const UserType = createInsertSchema(userTable).pick({
 });
 
 export type User = z.infer<typeof UserType>;
+export const ExtendedUser = UserType.extend({
+  groups: z.array(z.number()),
+});
 
 export const authSignupInputSchema = z.object({
   name: z.string(),

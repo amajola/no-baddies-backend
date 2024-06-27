@@ -35,26 +35,35 @@ import { zodValidator } from "@tanstack/zod-form-adapter";
 import z from "zod";
 import { AppType } from "server";
 import { useAtom } from "jotai";
-import { AuthorizationAtom } from "@/state";
+import { AuthorizationAtom, UserAtom } from "@/state";
 
 const CreateGroup = () => {
   const navigate = useNavigate();
-  const [auth, _] = useAtom(AuthorizationAtom);
+  const [auth] = useAtom(AuthorizationAtom);
+  const [user, setUser] = useAtom(UserAtom);
   const client = hc<AppType>("http://localhost:3000/", {
     headers: { Authorization: `Bearer ${auth}` },
   });
 
+  console.log(user);
   const form = useForm({
     defaultValues: {
       name: "",
     },
-    onSubmit: async ({ value }) => {
-      const { ok } = await client.groups.create.$post({ json: value });
-      if (ok) {
+    onSubmit: async ({ value, formApi }) => {
+      const response = await client.groups.create.$post({ json: value });
+      if (response.ok) {
+        const data = await response.json();
+        user?.groups.push(...data);
+        setUser(user);
         navigate("/");
+      }
+      if (response.status === 401) {
+        formApi.state.fieldMeta.name.errors.push("Group name already exists");
       }
     },
   });
+
   return (
     <div className="flex flex-col h-[100dvh] w-[100dvw]">
       <div className="flex-1 flex items-center justify-center">

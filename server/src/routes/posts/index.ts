@@ -5,6 +5,8 @@ import database, { lucia } from "../../utils/database";
 import { type Variables } from "../..";
 import { createMiddleware } from "hono/factory";
 import { desc, eq } from "drizzle-orm";
+import { groupTable, usersToGroupsRelations } from "../groups/schema";
+import { userTable } from "../auth/schema";
 
 export const authProtected = createMiddleware(async (c, next) => {
   const token = c.req.header("Authorization");
@@ -48,10 +50,33 @@ const Post = new Hono<{ Variables: Variables }>()
   .get("/", async (c) => {
     const session = c.get("session");
     const posts = await database
-      .select()
+      .select({
+        user: {
+          id: userTable.id,
+          name: userTable.name,
+          email: userTable.email,
+        },
+        post: {
+          id: postTable.id,
+          userId: postTable.userId,
+          groupId: postTable.groupId,
+          qoute: postTable.qoute,
+          isCountDown: postTable.isCountDown,
+          countDownDate: postTable.countDownDate,
+          content: postTable.content,
+          createdAt: postTable.createdAt,
+        },
+        group: {
+          id: groupTable.id,
+          name: groupTable.name,
+        },
+      })
       .from(postTable)
       .where(eq(postTable.userId, session.userId))
-      .orderBy(desc(postTable.createdAt));
+      .orderBy(desc(postTable.createdAt))
+      .rightJoin(userTable, eq(postTable.userId, userTable.id))
+      .rightJoin(groupTable, eq(postTable.groupId, groupTable.id))
+      .execute();
 
     return c.json({ posts });
   });

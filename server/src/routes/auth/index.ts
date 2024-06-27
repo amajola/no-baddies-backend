@@ -9,6 +9,7 @@ import { hash, verify } from "@node-rs/argon2";
 import database, { createSession } from "../../utils/database";
 import { eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
+import { usersToGroups } from "../groups/schema";
 
 const Auth = new Hono()
   .post(
@@ -41,16 +42,31 @@ const Auth = new Hono()
       if (!user)
         throw new HTTPException(401, { message: "This user already exists" });
 
+      const groups = await database
+        .select({
+          groupId: usersToGroups.groupId,
+          name: usersToGroups.groupName,
+        })
+        .from(usersToGroups)
+        .where(eq(usersToGroups.userId, user.id))
+        .execute();
+
+      let Authorization;
       const session = await createSession(user);
       if (session) {
         if (session) {
           const [_, cookieValue] = session?.cookie.split("=");
+          Authorization = cookieValue.split(";")[0];
           c.res.headers.set("Set-Cookie", session.cookie);
           c.res.headers.set("Authorization", cookieValue.split(";")[0]);
         }
       }
 
-      return c.json(user);
+      return c.json({
+        ...user,
+        Authorization,
+        groups,
+      });
     }
   )
   .post(
@@ -77,6 +93,15 @@ const Auth = new Hono()
       });
       if (!validPassword) throw new Error("User not found");
 
+      const groups = await database
+        .select({
+          groupId: usersToGroups.groupId,
+          name: usersToGroups.groupName,
+        })
+        .from(usersToGroups)
+        .where(eq(usersToGroups.userId, user.id))
+        .execute();
+
       const session = await createSession(user);
       let Authorization;
       if (session) {
@@ -86,11 +111,13 @@ const Auth = new Hono()
         c.header("Authorization", cookieValue.split(";")[0]);
       }
 
+      console.log(groups)
       return c.json({
         email: user.email,
         id: user.id,
         name: user.name,
         Authorization,
+        groups,
       });
     }
   );

@@ -1,6 +1,6 @@
 {
-  "id": "0c82560c-e14d-41b5-8ac5-5ad7c558c4cc",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "c55c0d66-bfb2-42e3-ac6e-1587bbcdbb2f",
+  "prevId": "c1e976da-1bc6-4b84-9b2f-fa5f5fab9407",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -197,75 +197,6 @@
             "user_id",
             "group_id",
             "group_name"
-          ]
-        }
-      },
-      "uniqueConstraints": {}
-    },
-    "public.post_users_groups": {
-      "name": "post_users_groups",
-      "schema": "",
-      "columns": {
-        "user_name": {
-          "name": "user_name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "group_name": {
-          "name": "group_name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "user_id": {
-          "name": "user_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "group_id": {
-          "name": "group_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "post_users_groups_user_id_user_id_fk": {
-          "name": "post_users_groups_user_id_user_id_fk",
-          "tableFrom": "post_users_groups",
-          "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "post_users_groups_group_id_groups_id_fk": {
-          "name": "post_users_groups_group_id_groups_id_fk",
-          "tableFrom": "post_users_groups",
-          "tableTo": "groups",
-          "columnsFrom": [
-            "group_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "post_users_groups_user_id_group_id_pk": {
-          "name": "post_users_groups_user_id_group_id_pk",
-          "columns": [
-            "user_id",
-            "group_id"
           ]
         }
       },

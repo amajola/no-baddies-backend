@@ -16,19 +16,30 @@ CREATE TABLE IF NOT EXISTS "user" (
 	"email" text NOT NULL,
 	"password" text NOT NULL,
 	"description" text,
+	CONSTRAINT "user_name_unique" UNIQUE("name"),
 	CONSTRAINT "user_email_unique" UNIQUE("email")
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "groups" (
 	"id" serial PRIMARY KEY NOT NULL,
-	"name" text
+	"name" text NOT NULL,
+	CONSTRAINT "groups_name_unique" UNIQUE("name")
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "users_to_groups" (
 	"user_id" integer NOT NULL,
 	"group_id" integer NOT NULL,
 	"role" "role" NOT NULL,
-	CONSTRAINT "users_to_groups_user_id_group_id_pk" PRIMARY KEY("user_id","group_id")
+	"group_name" text NOT NULL,
+	CONSTRAINT "users_to_groups_user_id_group_id_group_name_pk" PRIMARY KEY("user_id","group_id","group_name")
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "post_users_groups" (
+	"user_name" text NOT NULL,
+	"group_name" text NOT NULL,
+	"user_id" integer NOT NULL,
+	"group_id" integer NOT NULL,
+	CONSTRAINT "post_users_groups_user_id_group_id_pk" PRIMARY KEY("user_id","group_id")
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "post" (
@@ -56,6 +67,18 @@ END $$;
 --> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "users_to_groups" ADD CONSTRAINT "users_to_groups_group_id_groups_id_fk" FOREIGN KEY ("group_id") REFERENCES "public"."groups"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "post_users_groups" ADD CONSTRAINT "post_users_groups_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "post_users_groups" ADD CONSTRAINT "post_users_groups_group_id_groups_id_fk" FOREIGN KEY ("group_id") REFERENCES "public"."groups"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;

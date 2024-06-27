@@ -20,9 +20,13 @@ import { useForm } from "@tanstack/react-form";
 import { zodValidator } from "@tanstack/zod-form-adapter";
 import { z } from "zod";
 import { useNavigate } from "react-router-dom";
+import { useAtom } from "jotai";
+import { AuthorizationAtom, UserAtom } from "@/state";
 
 const Signup = () => {
   const client = hc<AppType>("http://localhost:3000/");
+  const [, setAuth] = useAtom(AuthorizationAtom);
+  const [, setUser] = useAtom(UserAtom);
   const navigate = useNavigate();
 
   const form = useForm({
@@ -39,15 +43,28 @@ const Signup = () => {
         password: value.password,
       };
 
-      const { status, ok } = await client.auth.signup.$post({
+      const response = await client.auth.signup.$post({
         json: { ...submitValues },
       });
 
-      if (ok) {
-        navigate("/login");
+      if (response.ok) {
+        const data = await response.json();
+        if (data.Authorization) {
+          setAuth(data.Authorization);
+          setUser({
+            name: data.name,
+            email: data.email,
+            groups: data.groups,
+          });
+          navigate("/create-group");
+        } else {
+          formApi.state.fieldMeta.password.errors.push(
+            "Something went wrong sorry"
+          );
+        }
       }
-      
-      if (status === 401) {
+
+      if (response.status === 401) {
         formApi.state.fieldMeta.email.errors.push(
           "This email is already taken"
         );

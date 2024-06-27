@@ -1,0 +1,1 @@
+DROP TABLE "post_users_groups";

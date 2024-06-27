@@ -1,6 +1,6 @@
 {
-  "id": "0c82560c-e14d-41b5-8ac5-5ad7c558c4cc",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "d7587311-0a50-4639-a3dc-e35ec374c9d4",
+  "prevId": "0c82560c-e14d-41b5-8ac5-5ad7c558c4cc",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -210,13 +210,13 @@
           "name": "user_name",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "group_name": {
           "name": "group_name",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "user_id": {
           "name": "user_id",

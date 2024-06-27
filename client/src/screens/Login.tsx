@@ -21,12 +21,13 @@ import { zodValidator } from "@tanstack/zod-form-adapter";
 import { z } from "zod";
 import { AppType } from "server";
 import { useAtom } from "jotai";
-import { AuthorizationAtom } from "@/state";
+import { AuthorizationAtom, UserAtom } from "@/state";
 
 export const Login = () => {
   const client = hc<AppType>("http://localhost:3000/");
   const navigate = useNavigate();
-  const [_, setAuth] = useAtom(AuthorizationAtom)
+  const [, setAuth] = useAtom(AuthorizationAtom);
+  const [, setUser] = useAtom(UserAtom);
 
   const form = useForm({
     defaultValues: {
@@ -34,22 +35,25 @@ export const Login = () => {
       password: "",
     },
     onSubmit: async ({ value, formApi }) => {
-      const call = await client.auth.signin.$post({
+      const response = await client.auth.signin.$post({
         json: { ...value },
       });
 
-      const response = await call.json();
+      const data = await response.json();
 
-      
-      if (call.ok && response.Authorization) {
-        setAuth(response.Authorization)
-        navigate("/create-group")
+      if (response.ok && data.Authorization) {
+        setAuth(data.Authorization);
+        console.log(data)
+        setUser({ name: data.name, email: data.email, groups: data.groups });
+        navigate("/");
+      } else {
+        formApi.state.fieldMeta.password.errors.push(
+          "Something went wrong sorry"
+        );
       }
 
-      if (call.status === 401) {
-        formApi.state.fieldMeta.email.errors.push(
-          "Invalid email or password"
-        );
+      if (response.status === 401) {
+        formApi.state.fieldMeta.email.errors.push("Invalid email or password");
       }
     },
   });
