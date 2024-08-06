@@ -14,9 +14,8 @@ services:
   api:
     container_name: no-baddies-server
     build:
-      context: ./
+      context: ./server
       target: production
-    image: no-baddies-server
     depends_on:
       - db
     ports:

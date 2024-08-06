@@ -28,7 +28,7 @@ COPY . .
 #RUN bun run build
 
 # copy production dependencies and source code into final image
-FROM base AS release
+FROM base AS production
 COPY --from=install /temp/prod/node_modules node_modules
 COPY --from=prerelease /app .
 
